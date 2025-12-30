@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 大学生职业潜能测评系统 (Pro版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f0f2f5;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #6366f1;
+        }
+        
+        .option-card:active {
+            transform: translateY(0);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/90">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-layer-group text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg text-slate-800 tracking-tight">CareerAnchor <span class="text-indigo-600">Pro</span></h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="text-xs font-medium text-slate-500 hidden sm:block">
+                    V 2.7 (Male/Liberal Arts)
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-6">
+        
+        <!-- 1. Welcome Screen -->
+        <div id="welcome-screen" class="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center fade-in">
+            <div class="mb-8">
+                <div class="inline-block p-4 rounded-full bg-indigo-50 text-indigo-600 mb-6">
+                    <i class="fa-solid fa-fingerprint text-4xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">职业认知潜能测评</h2>
+                <p class="text-slate-600 text-lg leading-relaxed max-w-lg mx-auto">
+                    这不仅仅是一个简单的性格测试。<br>
+                    我们将通过分析您在<b>非结构化场景</b>下的本能反应，<br>
+                    为您匹配 2025 年高潜力的职业赛道。
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 text-left">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="text-indigo-600 font-bold mb-1"><i class="fa-solid fa-brain mr-2"></i>潜意识分析</div>
+                    <div class="text-xs text-slate-500">选项无好坏之分，仅代表不同的认知处理模式。</div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="text-indigo-600 font-bold mb-1"><i class="fa-solid fa-chart-line mr-2"></i>行业赛道</div>
+                    <div class="text-xs text-slate-500">包含出海、ESG、AIGC应用等2025年真实风口。</div>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="text-indigo-600 font-bold mb-1"><i class="fa-solid fa-route mr-2"></i>路径推演</div>
+                    <div class="text-xs text-slate-500">从大二到秋招的精准行动指南。</div>
+                </div>
+            </div>
+
+            <button onclick="app.start()" class="w-full md:w-auto px-10 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center mx-auto text-lg">
+                开始深度测评 <i class="fa-solid fa-arrow-right ml-3"></i>
+            </button>
+            <div class="mt-4 text-xs text-slate-400">
+                * 匿名测试，数据本地处理，不上传云端
+            </div>
+        </div>
+
+        <!-- 2. Quiz Screen -->
+        <div id="quiz-screen" class="hidden max-w-2xl w-full flex-col">
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 h-1.5 rounded-full mb-8 overflow-hidden">
+                <div id="progress-bar" class="h-full bg-indigo-600 transition-all duration-500 ease-out w-0"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 fade-in relative min-h-[400px] flex flex-col">
+                
+                <!-- Category Tag -->
+                <div class="mb-4">
+                    <span id="q-category" class="inline-block px-3 py-1 bg-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider rounded-md">
+                        Scenario Analysis
+                    </span>
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="q-text" class="text-xl md:text-2xl font-bold text-slate-800 mb-8 leading-snug">
+                    ...
+                </h3>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="space-y-3 flex-grow">
+                    <!-- Options injected via JS -->
+                </div>
+
+                <!-- Skip Button -->
+                <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
+                    <span class="text-xs text-slate-400" id="q-counter">1 / 20</span>
+                    <button onclick="app.skipQuestion()" class="text-slate-400 hover:text-slate-600 text-sm font-medium transition flex items-center">
+                        这题很难选 / 跳过 <i class="fa-solid fa-forward ml-1.5 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Result Screen -->
+        <div id="result-screen" class="hidden max-w-4xl w-full fade-in pb-20">
+            
+            <!-- Result Banner -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden mb-8">
+                <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
+                    <i class="fa-solid fa-chess-knight text-9xl"></i>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center space-x-2 text-indigo-300 font-bold tracking-wider text-sm mb-3 uppercase">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>职业定位分析报告</span>
+                    </div>
+                    <h1 id="r-title" class="text-3xl md:text-5xl font-bold mb-4 tracking-tight">
+                        Calculating...
+                    </h1>
+                    <p id="r-subtitle" class="text-slate-300 text-lg md:w-2/3 leading-relaxed">
+                        ...
+                    </p>
+                    
+                    <div class="mt-8 flex flex-wrap gap-3" id="r-tags">
+                        <!-- Tags injected -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Core Analysis (8 cols) -->
+                <div class="md:col-span-8 space-y-6">
+                    
+                    <!-- Insight Card -->
+                    <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center">
+                            <span class="w-1 h-6 bg-indigo-500 rounded mr-3"></span>
+                            深层逻辑解析
+                        </h3>
+                        <div id="r-desc" class="text-slate-600 leading-7 text-justify space-y-4">
+                            <!-- Desc injected -->
+                        </div>
+                    </div>
+
+                    <!-- Recommended Tracks -->
+                    <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-800 mb-6 flex items-center">
+                            <span class="w-1 h-6 bg-emerald-500 rounded mr-3"></span>
+                            2025 推荐行业与赛道
+                        </h3>
+                        <div id="r-tracks" class="grid gap-4">
+                            <!-- Tracks injected -->
+                        </div>
+                    </div>
+
+                     <!-- Specific Roles -->
+                     <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg text-slate-800 mb-6 flex items-center">
+                            <span class="w-1 h-6 bg-blue-500 rounded mr-3"></span>
+                            具体的岗位切入点
+                        </h3>
+                        <div id="r-roles" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Roles injected -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Action Plan (4 cols) -->
+                <div class="md:col-span-4 space-y-6">
+                    
+                    <!-- Radar/Stats Placeholder (Simulated) -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                        <h4 class="text-sm font-bold text-slate-500 uppercase mb-4 tracking-wider">核心胜任力</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-600">逻辑分析 (Logic)</span>
+                                <span class="font-bold text-slate-800" id="score-logic">High</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                                <div id="bar-logic" class="bg-slate-800 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                            
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-600">人际影响 (Social)</span>
+                                <span class="font-bold text-slate-800" id="score-social">Med</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                                <div id="bar-social" class="bg-indigo-500 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-600">创新思维 (Creative)</span>
+                                <span class="font-bold text-slate-800" id="score-creative">Low</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                                <div id="bar-creative" class="bg-emerald-500 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                            
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-600">执行/事务 (Ops)</span>
+                                <span class="font-bold text-slate-800" id="score-ops">Med</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-1.5">
+                                <div id="bar-ops" class="bg-amber-500 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 sticky top-24">
+                        <h4 class="text-sm font-bold text-slate-800 uppercase mb-6 tracking-wider flex items-center">
+                            <i class="fa-solid fa-flag-checkered mr-2"></i> 行动路径
+                        </h4>
+                        
+                        <div class="relative border-l-2 border-slate-300 ml-2 space-y-8 pb-2">
+                            <div class="relative pl-6">
+                                <div class="absolute -left-[7px] top-1 w-3.5 h-3.5 bg-white border-2 border-slate-400 rounded-full"></div>
+                                <div class="text-xs font-bold text-slate-500 uppercase mb-1">大二下 - 积累期</div>
+                                <div id="plan-step1" class="text-sm text-slate-700 font-medium"></div>
+                            </div>
+                            <div class="relative pl-6">
+                                <div class="absolute -left-[7px] top-1 w-3.5 h-3.5 bg-white border-2 border-indigo-500 rounded-full"></div>
+                                <div class="text-xs font-bold text-indigo-600 uppercase mb-1">大三 - 破局期</div>
+                                <div id="plan-step2" class="text-sm text-slate-700 font-medium"></div>
+                            </div>
+                            <div class="relative pl-6">
+                                <div class="absolute -left-[7px] top-1 w-3.5 h-3.5 bg-white border-2 border-emerald-500 rounded-full"></div>
+                                <div class="text-xs font-bold text-emerald-600 uppercase mb-1">大四 - 冲刺期</div>
+                                <div id="plan-step3" class="text-sm text-slate-700 font-medium"></div>
+                            </div>
+                        </div>
+
+                        <button onclick="location.reload()" class="w-full mt-8 py-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
+                            重新测评
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        /**
+         * 职业规划系统逻辑核心
+         * 维度说明 (基于混合模型):
+         * 1. Analytics (逻辑/数据/深度思考) - 对应 RIASEC中的 I (研究) + C (常规)
+         * 2. Influence (人际/销售/领导力) - 对应 RIASEC中的 E (企业) + S (社会)
+         * 3. Creativity (创意/审美/发散) - 对应 RIASEC中的 A (艺术)
+         * 4. Operations (执行/秩序/细节) - 对应 RIASEC中的 C (常规) + J (判断)
+         * 5. Tech (技术敏感度/新工具) - 2025年特有维度
+         */
+
+        const app = {
+            state: {
+                currentQ: 0,
+                scores: {
+                    Analytics: 0, // 分析能力
+                    Influence: 0, // 影响力
+                    Creativity: 0, // 创造力
+                    Operations: 0, // 执行力
+                    Tech: 0       // 技术感
+                },
+                answeredCount: 0
+            },
+
+            questions: [
+                {
+                    text: "新学期选修课（通识课），在不考虑学分好拿程度的情况下，你本能最想选哪一类？",
+                    cat: "认知偏好",
+                    opts: [
+                        { text: "“博弈论”、“经济学原理”或“编程基础” —— 烧脑，有逻辑快感。", type: ["Analytics", "Tech"] },
+                        { text: "“电影视听语言”、“现代艺术欣赏” —— 有趣，能提高审美。", type: ["Creativity"] },
+                        { text: "“演讲与口才”、“领导力艺术” —— 实用，能提升气场和社交能力。", type: ["Influence"] },
+                        { text: "“信息检索”、“Office办公进阶” —— 稳妥，对未来工作直接有用。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "面对一个极其复杂的社会热点新闻（如某项新政策发布），你的第一反应通常是？",
+                    cat: "信息处理",
+                    opts: [
+                        { text: "去看出台背景、数据统计和专家深度解读。", type: ["Analytics"] },
+                        { text: "看网友的评论，关注大家的情绪和争议点。", type: ["Influence", "Creativity"] },
+                        { text: "思考这对自己或身边人的生活有什么具体影响。", type: ["Operations", "Influence"] },
+                        { text: "不管那么多，先看看有没有什么梗或者段子。", type: ["Tech", "Influence"] } // 改动：Tech代表互联网原生/玩梗
+                    ]
+                },
+                {
+                    text: "在大学里，你更愿意参加哪种类型的社团活动？",
+                    cat: "社交场景",
+                    opts: [
+                        { text: "辩论队或模拟联合国，需要高强度逻辑输出。", type: ["Analytics", "Influence"] },
+                        { text: "外联部或学生会主席团，需要拉赞助、搞人际。", type: ["Influence"] },
+                        { text: "各种工作坊、读书会，或者自己默默搞研究。", type: ["Analytics", "Creativity"] },
+                        { text: "志愿者协会或后勤部，流程清晰，按部就班。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "假设你要写一篇关于“AI对文学影响”的论文，你会怎么起手？",
+                    cat: "执行习惯",
+                    opts: [
+                        { text: "先用ChatGPT生成几个框架，然后自己修改。", type: ["Tech", "Operations"] },
+                        { text: "去图书馆翻阅经典文学理论，寻找哲学依据。", type: ["Analytics"] },
+                        { text: "采访几个作家或者中文系的同学，把访谈写进去。", type: ["Influence"] },
+                        { text: "天马行空地写出自己的直观感受，不管格式。", type: ["Creativity"] }
+                    ]
+                },
+                {
+                    text: "你最反感别人用什么方式说服你？",
+                    cat: "压力测试",
+                    opts: [
+                        { text: "煽情，讲故事，但是逻辑漏洞百出。", type: ["Analytics"] }, 
+                        { text: "列一大堆枯燥的数据，完全不顾人情世故。", type: ["Influence"] }, // 改动：去除了Creativity，更纯粹
+                        { text: "强制命令，不告诉我原因，只让我照做。", type: ["Creativity", "Influence"] }, // 改动：这是追求自由/创意的体现
+                        { text: "朝令夕改，一会一个主意，没有定数。", type: ["Operations"] } 
+                    ]
+                },
+                {
+                    text: "如果给你100万启动资金去创业，你会选择？",
+                    cat: "商业直觉",
+                    opts: [
+                        { text: "开一家设计感极强的品牌集合店或咖啡馆。", type: ["Creativity", "Operations"] },
+                        { text: "做跨境电商或倒买倒卖，赚取信息差。", type: ["Influence", "Tech"] }, // 改动：信息差 = Tech/Influence，减少Analytics
+                        { text: "开发一个小程序或App，解决某个痛点。", type: ["Tech", "Creativity"] }, // 改动：Maker属于创造+技术
+                        { text: "投资理财，或者购买固定资产，稳健增值。", type: ["Analytics"] } // 改动：纯分析
+                    ]
+                },
+                {
+                    text: "在看一部悬疑电影时，你通常是？",
+                    cat: "思维模式",
+                    opts: [
+                        { text: "全程在推测凶手是谁，寻找伏笔和Bug。", type: ["Analytics"] },
+                        { text: "被氛围和配乐吸引，沉浸在紧张的情绪中。", type: ["Creativity"] },
+                        { text: "看完后立刻去搜影评，看大家怎么说。", type: ["Influence"] },
+                        { text: "不太喜欢太烧脑的，只想放松看个爽片。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "如果必须做一份兼职，这四个里你选哪个？",
+                    cat: "职业雏形",
+                    opts: [
+                        { text: "家教，一对一辅导学生提高成绩。", type: ["Influence", "Analytics"] }, // 改动：教学需要逻辑
+                        { text: "文案写手，帮公众号写稿子。", type: ["Creativity"] },
+                        { text: "数据录入或超市理货员，不用动脑但要细心。", type: ["Operations"] },
+                        { text: "校园代理，推销电话卡或健身卡。", type: ["Influence", "Tech"] } // 改动：销售+渠道(Tech/Network)
+                    ]
+                },
+                {
+                    text: "面对这学期刚火起来的一款AI效率工具（如DeepSeek或ChatGPT），你的态度是？",
+                    cat: "技术接受度",
+                    opts: [
+                        { text: "第一时间注册，测试它的极限和逻辑漏洞。", type: ["Analytics", "Tech"] },
+                        { text: "看大家都在推荐，赶紧学一下，怕落伍。", type: ["Influence"] },
+                        { text: "不太感兴趣，觉得还是自己动手写东西更有灵魂。", type: ["Creativity"] },
+                        { text: "等它普及了、学校要求用了再学，现在先观望。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "在团队合作中，你最常扮演的角色类似于？",
+                    cat: "团队定位",
+                    opts: [
+                        { text: "粘合剂：调解矛盾，确保大家开心干活。", type: ["Influence"] },
+                        { text: "冷面判官：指出问题，把控时间和质量。", type: ["Analytics", "Operations"] },
+                        { text: "点子王：提出各种脑洞，虽然不一定能落地。", type: ["Creativity"] },
+                        { text: "实干家：别人说什么我就做什么，保证不拖后腿。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "你觉得一个优秀的“文科生”最核心的竞争力是？",
+                    cat: "价值认同",
+                    opts: [
+                        { text: "强大的逻辑整合能力，能看透事物本质。", type: ["Analytics"] },
+                        { text: "共情能力，能搞定人，整合资源。", type: ["Influence"] },
+                        { text: "审美和表达，能创造出打动人心的内容。", type: ["Creativity"] },
+                        { text: "稳重靠谱，文字功底扎实，不出错。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "如果未来工作很忙，你希望这种“忙”是因为？",
+                    cat: "动机分析",
+                    opts: [
+                        { text: "因为在攻克一个很难的项目，很有挑战性。", type: ["Analytics", "Tech"] },
+                        { text: "因为有很多客户要见，每天都在谈生意。", type: ["Influence"] },
+                        { text: "因为在创作自己的作品，灵感停不下来。", type: ["Creativity"] },
+                        { text: "忙一点没关系，只要流程清晰，别让我背锅就行。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "你对“规则”的态度是？",
+                    cat: "规范性",
+                    opts: [
+                        { text: "规则是用来打破的，创新需要突破。", type: ["Creativity", "Influence"] },
+                        { text: "规则是效率的保障，大家都遵守才能转得快。", type: ["Operations", "Analytics"] },
+                        { text: "看情况，如果规则不合理我会想办法绕过去。", type: ["Analytics", "Influence"] },
+                        { text: "我倾向于遵守规则，这样最安全。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "如果去旅游，你做攻略的风格是？",
+                    cat: "计划性",
+                    opts: [
+                        { text: "精确到每半小时的行程表，订好所有门票。", type: ["Operations", "Analytics"] },
+                        { text: "只定机酒，到了目的地看心情随便逛。", type: ["Creativity"] },
+                        { text: "找个当地向导或者跟团，省心省力。", type: ["Influence"] },
+                        { text: "会在小红书搜各种避雷贴，筛选关键信息。", type: ["Tech", "Analytics"] } // 改动：搜集信息+分析
+                    ]
+                },
+                {
+                    text: "听到“数字化转型”这个词，你的感受是？",
+                    cat: "时代趋势",
+                    opts: [
+                        { text: "觉得很高大上，想去了解背后的商业逻辑。", type: ["Analytics", "Tech"] },
+                        { text: "觉得是老板用来裁员的借口，有点反感。", type: ["Influence", "Creativity"] },
+                        { text: "无所谓，只要教会我怎么用系统就行。", type: ["Operations"] },
+                        { text: "很焦虑，怕自己被淘汰。", type: ["Operations"] } 
+                    ]
+                },
+                {
+                    text: "你更擅长处理哪种类型的信息？",
+                    cat: "信息偏好",
+                    opts: [
+                        { text: "文字和抽象概念（如哲学理论）。", type: ["Creativity", "Analytics"] }, // 改动：哲学往往也是创造性思维
+                        { text: "数字和图表（如财报、统计图）。", type: ["Analytics", "Tech"] },
+                        { text: "人的表情、语气和潜台词。", type: ["Influence"] },
+                        { text: "清单、流程图和操作手册。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "如果让你去推销一支钢笔，你会怎么说？",
+                    cat: "销售风格",
+                    opts: [
+                        { text: "这支笔采用了XX航天材质，书写长度达XX米。（讲参数）", type: ["Analytics", "Tech"] },
+                        { text: "成功人士都在用这支笔，它是身份的象征。（讲地位）", type: ["Influence"] },
+                        { text: "拿起这支笔，你会想起父亲当年的教诲。（讲情感）", type: ["Creativity", "Influence"] },
+                        { text: "现在买一送一，还送笔芯，非常划算。（讲性价比）", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "你认为最理想的办公环境是？",
+                    cat: "环境偏好",
+                    opts: [
+                        { text: "有独立办公室，没人打扰，可以深度思考。", type: ["Analytics", "Creativity"] },
+                        { text: "开放式工位，随时可以和同事讨论，热热闹闹。", type: ["Influence"] },
+                        { text: "高科技园区，充满现代感和极客氛围。", type: ["Tech", "Analytics"] },
+                        { text: "政府机关或国企大楼，庄重、安静、有序。", type: ["Operations"] }
+                    ]
+                },
+                {
+                    text: "朋友心情不好找你倾诉，你会？",
+                    cat: "共情方式",
+                    opts: [
+                        { text: "帮他分析问题的根源，提供解决方案。", type: ["Analytics"] },
+                        { text: "陪他一起骂，带他去吃好吃的转移注意力。", type: ["Influence", "Creativity"] },
+                        { text: "默默倾听，递纸巾，不随意发表意见。", type: ["Operations", "Influence"] },
+                        { text: "有点不知所措，不知道该说什么。", type: ["Tech"] } 
+                    ]
+                },
+                {
+                    text: "最后，你希望5年后的自己被贴上什么标签？",
+                    cat: "自我期许",
+                    opts: [
+                        { text: "专业、犀利、不可替代。", type: ["Analytics", "Tech"] },
+                        { text: "有钱、有权、有资源。", type: ["Influence"] },
+                        { text: "有趣、独特、有品位。", type: ["Creativity"] },
+                        { text: "稳重、负责、家庭幸福。", type: ["Operations"] }
+                    ]
+                }
+            ],
+
+            results: {
+                "Strategic_Analyst": {
+                    title: "商业分析与战略规划师",
+                    subtitle: "擅长用逻辑解构世界的幕后军师",
+                    desc: "您的认知模式偏向 <b>深度分析 (High Analytics)</b>。您不满足于表象，喜欢挖掘事物背后的逻辑和数据支撑。在文科生中，您属于“理科脑”，这非常稀缺。您能够将复杂的定性信息转化为定量的商业洞察，这正是咨询公司和战略部门最需要的。",
+                    tracks: [
+                        `<div><div class='font-bold text-indigo-700'>1. ESG与可持续发展咨询</div><div class='text-sm text-slate-600'>2025年风口。企业需要既懂政策解读（文科优势），又懂数据披露（分析优势）的人才。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>2. 商业分析 (BA) / 行业研究</div><div class='text-sm text-slate-600'>去券商研究所、咨询公司或大厂战略部，产出深度报告。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>3. 政策分析与政府关系 (GR)</div><div class='text-sm text-slate-600'>为企业解读宏观政策，需要极强的逻辑归纳能力。</div></div>`
+                    ],
+                    roles: [
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>ESG研究员</b><br>起薪高，竞争相对Tech岗小。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>咨询顾问助理 (PTA)</b><br>麦肯锡/贝恩等Tier1咨询的敲门砖。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>用户研究员 (User Researcher)</b><br>用逻辑去拆解用户需求。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>投资分析师 (文科背景)</b><br>关注消费、传媒等软性行业。</div>`
+                    ],
+                    plan: [
+                        "<b>硬技能补全：</b> 立即学习 SQL（基础查询）和 PowerBI/Tableau。精通 Excel 透视表。学习“金字塔原理”。",
+                        "<b>实习狙击：</b> 寻找一份咨询公司（哪怕是精品所）或券商研究所的“行研实习生”工作，必须有产出报告的经历。",
+                        "<b>秋招策略：</b> 简历中强调你的“研究方法论”和“数据敏感度”，弱化感性描述。准备Case Interview（案例面试）。"
+                    ]
+                },
+                "Global_Pioneer": {
+                    title: "出海业务与市场拓荒者",
+                    subtitle: "具备商业野心与跨文化视野的行动派",
+                    desc: "您的得分显示出极高的 <b>影响力 (High Influence)</b> 和 <b>进取心</b>。您不甘于平稳的案头工作，渴望在与人的博弈和资源的交换中获得成就感。2025年中国企业“大出海”时代，既懂外语/跨文化，又懂商业人性的文科男生是绝对的主力军。",
+                    tracks: [
+                        `<div><div class='font-bold text-indigo-700'>1. 企业出海 (GTM) / 海外销售</div><div class='text-sm text-slate-600'>去新能源、游戏、电商公司的海外部。驻外津贴高，晋升快。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>2. B2B 解决方案销售</div><div class='text-sm text-slate-600'>不同于卖保险，这是向企业卖系统/服务，需要极高的情商和策略。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>3. 项目管理 (PMO)</div><div class='text-sm text-slate-600'>在复杂项目中协调各方资源，推动事情落地。</div></div>`
+                    ],
+                    roles: [
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>海外运营/销售管培生</b><br>字节TikTok、Temu、比亚迪等大厂核心岗。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>大客户经理 (KA)</b><br>负责维护关键客户关系。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>渠道经理</b><br>管理代理商，属于强结果导向岗位。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>总裁办助理</b><br>作为高管预备役培养。</div>`
+                    ],
+                    plan: [
+                        "<b>语言与视野：</b> 如果英语好，练到商务级；如果一般，考虑学一门小语种（西语/阿语）。关注出海媒体（36氪出海等）。",
+                        "<b>实战经历：</b> 哪怕是去卖房/卖课，只要是“销售”性质的实习，都能极好地锻炼你的抗压和说服力。尽量去带“Global”字样的部门。",
+                        "<b>秋招策略：</b> 展现你的“野心”、“抗压能力”和“结果导向”。面试中多举你如何搞定难缠客户的例子。"
+                    ]
+                },
+                "Tech_Operator": {
+                    title: "数字化运营与产品策略",
+                    subtitle: "懂人性的产品经理 & 懂数据的运营操盘手",
+                    desc: "您在 <b>技术敏感度 (Tech)</b> 和 <b>影响力 (Influence)</b> 上表现均衡。您不需要写代码，但您能理解技术边界，并擅长把技术翻译成用户能听懂的语言。在AI时代，纯文科生容易被淘汰，但“AI驾驭者”——即懂得如何用工具提升效率、优化流程的人，将是企业的核心资产。",
+                    tracks: [
+                        `<div><div class='font-bold text-indigo-700'>1. AIGC 产品运营 / 提示词工程</div><div class='text-sm text-slate-600'>训练AI写文案、出图，制定AI工作流SOP。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>2. 用户增长 (User Growth)</div><div class='text-sm text-slate-600'>利用数据和心理学做裂变、拉新。互联网大厂核心岗。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>3. ToB 产品经理 (非技术向)</div><div class='text-sm text-slate-600'>负责SaaS软件的业务逻辑梳理，需要极强的业务理解力。</div></div>`
+                    ],
+                    roles: [
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>产品运营专员</b><br>负责产品的日活、留存数据。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>AIGC 内容策划</b><br>利用AI工具批量生产高质量内容。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>私域流量操盘手</b><br>高客单价行业（医疗/金融）非常需要。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>电商运营</b><br>在这个领域，数据分析能力决定上限。</div>`
+                    ],
+                    plan: [
+                        "<b>工具武装：</b> 熟练使用 ChatGPT/Midjourney，并建立自己的Prompt库。学习 Python 基础（仅需了解逻辑）。",
+                        "<b>从0到1：</b> 自己试着运营一个账号，或者用AI工具做一个小产品/小社群。用真实数据说话。",
+                        "<b>秋招策略：</b> 避开“内容编辑”这种纯文字岗，投递“运营”、“增长”、“产品助理”。强调你的“数据驱动”思维。"
+                    ]
+                },
+                "Creative_Strategist": {
+                    title: "品牌策略与内容架构师",
+                    subtitle: "用创意解决商业问题的Storyteller",
+                    desc: "您的 <b>创造力 (High Creativity)</b> 和 <b>逻辑分析 (Analytics)</b> 并存。您不是那种只会风花雪月的文人，而是懂得商业逻辑的创意人。2025年，普通的文案和设计已廉价，但能够制定品牌顶层策略、策划大型Campaign的“全案型人才”依然昂贵。",
+                    tracks: [
+                        `<div><div class='font-bold text-indigo-700'>1. 品牌管理 (Brand Management)</div><div class='text-sm text-slate-600'>甲方品牌部。不仅是写Slogan，更是管理品牌资产。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>2. 整合营销传播 (IMC)</div><div class='text-sm text-slate-600'>4A广告公司或大厂市场部。策划跨界联名、事件营销。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>3. 游戏/IP 策划</div><div class='text-sm text-slate-600'>构建世界观、剧情线。游戏行业依然是吸金兽。</div></div>`
+                    ],
+                    roles: [
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>品牌管培生</b><br>快消巨头（宝洁/联合利华）的黄埔军校。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>游戏剧情策划</b><br>需要极强的文学底蕴和逻辑闭环能力。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>公关专员 (PR)</b><br>危机公关与媒体关系维护。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>IP主理人助理</b><br>协助孵化网红或虚拟偶像。</div>`
+                    ],
+                    plan: [
+                        "<b>建立作品集：</b> 必须有Portfolio。不是几篇散文，而是完整的策划案、传播方案、分析报告。",
+                        "<b>赛事镀金：</b> 参加“学院奖”、“大广赛”或互联网大厂的营销大赛，拿到名次是最好的背书。",
+                        "<b>秋招策略：</b> 展示你的“脑洞”同时展示你的“落地能力”。让面试官知道你的创意是可以变现的。"
+                    ]
+                },
+                "Organization_Guardian": {
+                    title: "组织管理与公共事务专家",
+                    subtitle: "体系内的守护者与规则制定者",
+                    desc: "您的 <b>执行力 (Operations)</b> 和 <b>影响力 (Influence)</b> 较高，且风险偏好较低。您适合在成熟、庞大的体系中工作。您擅长处理复杂的人际纠葛，维护流程的公正与高效。这不是简单的“打杂”，而是组织高效运转的润滑剂。",
+                    tracks: [
+                        `<div><div class='font-bold text-indigo-700'>1. 泛体制内 (公考/选调/国企)</div><div class='text-sm text-slate-600'>对于追求稳定和家庭平衡的男生，这依然是最优解。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>2. 组织发展 (OD) / HRBP</div><div class='text-sm text-slate-600'>大厂的人力资源核心岗，负责组织架构调整和人才盘点。</div></div>`,
+                        `<div><div class='font-bold text-indigo-700'>3. 法务合规 / 供应链管理</div><div class='text-sm text-slate-600'>需要极强的细心、原则性和流程管理能力。</div></div>`
+                    ],
+                    roles: [
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>定向选调生</b><br>只要学校Title够硬，这是从政的最佳快车道。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>人力资源管培生</b><br>未来成为HRD或CHO。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>行政经理/总助</b><br>大型企业的行政中枢，权力其实不小。</div>`,
+                        `<div class='p-3 bg-slate-50 rounded border border-slate-200 text-sm'><b>供应链专员</b><br>文科生切入实体制造业的一个稳定入口。</div>`
+                    ],
+                    plan: [
+                        "<b>政治面貌：</b> 尽早入党。在班级或学生会担任主要干部，这些履历在国企/公考面试中非常加分。",
+                        "<b>考试准备：</b> 如果决定走这条路，大三就要开始系统复习行测申论。关注各省人才引进政策。",
+                        "<b>实习选择：</b> 去知名国企、政府机关或世界500强的HR部门实习。积累公文写作和待人接物的经验。"
+                    ]
+                }
+            },
+
+            // Controller
+            start() {
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                document.getElementById('quiz-screen').classList.add('flex');
+                this.renderQ();
+            },
+
+            renderQ() {
+                const q = this.questions[this.state.currentQ];
+                document.getElementById('q-text').innerText = q.text;
+                document.getElementById('q-category').innerText = q.cat;
+                document.getElementById('q-counter').innerText = `${this.state.currentQ + 1} / ${this.questions.length}`;
+                
+                // Progress
+                const pct = (this.state.currentQ / this.questions.length) * 100;
+                document.getElementById('progress-bar').style.width = `${pct}%`;
+
+                // Options
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+                q.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = `option-card w-full text-left p-5 rounded-xl border border-slate-200 hover:bg-indigo-50/50 bg-white group flex items-start`;
+                    btn.innerHTML = `
+                        <div class="mt-1 mr-4 flex-shrink-0 w-5 h-5 rounded-full border-2 border-slate-300 group-hover:border-indigo-500 flex items-center justify-center">
+                            <div class="w-2.5 h-2.5 rounded-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition"></div>
+                        </div>
+                        <span class="text-slate-700 font-medium leading-relaxed group-hover:text-indigo-900">${opt.text}</span>
+                    `;
+                    btn.onclick = () => this.handleAnswer(opt.type);
+                    container.appendChild(btn);
+                });
+            },
+
+            handleAnswer(types) {
+                // Add scores
+                if (types) {
+                    types.forEach(t => this.state.scores[t]++);
+                    this.state.answeredCount++;
+                } else {
+                    // Skip logic: do nothing to scores
+                }
+                
+                this.next();
+            },
+
+            skipQuestion() {
+                this.handleAnswer(null);
+            },
+
+            next() {
+                this.state.currentQ++;
+                if (this.state.currentQ < this.questions.length) {
+                    this.renderQ();
+                } else {
+                    this.calcResult();
+                }
+            },
+
+            calcResult() {
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+
+                const s = this.state.scores;
+                
+                // Logic Model: Find the max composite score
+                // Adjusted multipliers to ensure fair competition
+                const results = {
+                    "Strategic_Analyst": s.Analytics * 2 + s.Operations * 0.5,
+                    "Global_Pioneer": s.Influence * 1.5 + s.Analytics * 1 + s.Operations * 0.5,
+                    "Tech_Operator": s.Tech * 2.2 + s.Influence * 0.8 + s.Operations * 0.5, // Tech multiplier boosted slightly as questions are rarer
+                    "Creative_Strategist": s.Creativity * 2 + s.Analytics * 0.5 + s.Influence * 0.5,
+                    "Organization_Guardian": s.Operations * 2.1 + s.Influence * 0.9 // Boosted Ops slightly
+                };
+
+                let winner = Object.keys(results).reduce((a, b) => results[a] > results[b] ? a : b);
+                
+                // Fallback if scores are too low (e.g. skipped too many)
+                if (this.state.answeredCount < 5) {
+                    // Default to something safe or error handling, here we just show Pioneer
+                    winner = "Global_Pioneer"; 
+                }
+
+                this.renderResult(winner, s);
+            },
+
+            renderResult(key, scores) {
+                const data = this.results[key];
+                
+                document.getElementById('r-title').innerText = data.title;
+                document.getElementById('r-subtitle').innerText = data.subtitle;
+                document.getElementById('r-desc').innerHTML = data.desc;
+
+                document.getElementById('r-tracks').innerHTML = data.tracks.join('');
+                document.getElementById('r-roles').innerHTML = data.roles.join('');
+                
+                document.getElementById('plan-step1').innerHTML = data.plan[0];
+                document.getElementById('plan-step2').innerHTML = data.plan[1];
+                document.getElementById('plan-step3').innerHTML = data.plan[2];
+
+                // Render Chart Bars (Simulated)
+                // Normalize max score to 100% relative to questions count roughly
+                const max = Math.max(scores.Analytics, scores.Influence, scores.Creativity, scores.Operations, scores.Tech) || 1;
+                
+                const setBar = (id, val, txtId) => {
+                    const pct = Math.min((val / 15) * 100, 100); // 15 is approx max potential score
+                    document.getElementById(id).style.width = `${pct}%`;
+                    
+                    let label = "Low";
+                    if(val > 8) label = "High";
+                    else if(val > 4) label = "Med";
+                    document.getElementById(txtId).innerText = label;
+                };
+
+                setBar('bar-logic', scores.Analytics, 'score-logic');
+                setBar('bar-social', scores.Influence, 'score-social');
+                setBar('bar-creative', scores.Creativity, 'score-creative');
+                setBar('bar-ops', scores.Operations, 'score-ops');
+
+                window.scrollTo(0,0);
+            }
+        };
+    </script>
+</body>
+</html>
